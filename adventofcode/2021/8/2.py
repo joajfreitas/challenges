@@ -1,77 +1,60 @@
 import sys
 
+def subset(s1, s2):
+    i = True
+    for s in s1:
+        if s not in s2:
+            i = False
+
+    return i
+
+
+def solve(input, output):
+    input = ["".join(sorted(word)) for word in input]
+    output = ["".join(sorted(word)) for word in output]
+
+    mapping = {
+        2: list(filter(lambda x:len(x) == 2, input)),
+        3: list(filter(lambda x:len(x) == 3, input)),
+        4: list(filter(lambda x:len(x) == 4, input)),
+        5: list(filter(lambda x:len(x) == 5, input)),
+        6: list(filter(lambda x:len(x) == 6, input)),
+        7: list(filter(lambda x:len(x) == 7, input))
+    }
+
+    encoding = {
+        1 : mapping[2][0],
+        7 : mapping[3][0],
+        4 : mapping[4][0],
+        8 : mapping[7][0],
+    }
+
+    encoding[3] = list(filter(lambda x: subset(encoding[1], x), mapping[5]))[0]
+    mapping[5].remove(encoding[3])
+    encoding[6] = list(filter(lambda x: not subset(encoding[1], x), mapping[6]))[0]
+    mapping[6].remove(encoding[6])
+    encoding[5] = list(filter(lambda x: subset(x, encoding[6]), mapping[5]))[0]
+    mapping[5].remove(encoding[5])
+    encoding[2] = mapping[5][0]
+    encoding[9] = list(filter(lambda x: subset(encoding[5], x), mapping[6]))[0]
+    mapping[6].remove(encoding[9])
+    encoding[0] = mapping[6][0]
+
+    decoding = {v:k for k,v in encoding.items()}
+
+    print(mapping)
+    print(encoding)
+    print(decoding)
+
+    return sum([decoding[word] * 10**i for i,word in enumerate(reversed(output))])
+
 with open(sys.argv[1]) as f:
     lines = [line.replace("\n", "") for line in f.readlines()]
 
-digits = []
-
-#segment_counts = {
-#    7: [8],
-#    6: [0, 6, 9],
-#    5: [2, 3, 5],
-#    4: [4],
-#    3: [7],
-#}
-#
-#segment_mapping = {
-#    0: ["a", "b", "c", "e", "f", "g"],
-#    1: ["c", "f"],
-#    2: ["a", "c", "d", "e", "g"],
-#    3: ["a", "c", "d", "f", "g"],
-#    4: ["b", "c", "d", "f"],
-#    5: ["a", "b", "d", "f", "g"],
-#    6: ["a", "b", "d", "f", "e", "g"],
-#    7: ["a", "c", "f"],
-#    8: ["a", "b", "c", "d", "e", "f", "g"],
-#    9: ["a", "b", "c", "d", "f", "g"],
-#}
-#
-#belief = {}
-
-mapping = {
-    "abcdfg" : 0,
-    "ac" : 1,
-    "abdeg" : 2,
-    "acdeg" : 3,
-    "acef": 4,
-    "cdefg" : 5,
-    "bcdefg" : 6,
-    "acg" : 7,
-    "abcdefg": 8,
-    "acdefg" : 9
-}
-
-
-#mapping = {
-#    "ac": 1,
-#    "eacf": 4,
-#    "acg": 7,
-#    "abcdefg": 8,
-#}
-#
-#mapping = {
-#    "abcdeg": 0,
-#    "ab": 1,
-#    "acdfg": 2,
-#    "abcdf": 3,
-#    "abef": 4,
-#    "bcdef": 5,
-#    "bcdefg": 6,
-#    "abd": 7,
-#    "abcdefg": 8,
-#    "abcdef": 9,
-#}
-
-
 acc = 0
-for i,line in enumerate(lines):
-    print(i)
-    _, output = line.split('|')
-    aux = 0
-    output = output[1:].split(" ")
-    for i, segment in enumerate(reversed(output)):
-        aux += mapping["".join(sorted(segment))] * 10**i
-
-    acc += aux
+for line in lines:
+    input, output = line.split('|')
+    s = solve(input[:-1].split(" "), output[1:].split(" "))
+    acc += s
 
 print(acc)
