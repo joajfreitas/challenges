@@ -14,15 +14,15 @@ def find_errors(line):
 
     stack = []
 
-    print(line)
+    #print(line)
     for c in line:
-        print(stack)
+        #print(stack)
         if c in ["{", "(", "<", "["]:
             stack.insert(0,c)
         else:
             o = stack.pop(0)
             if c != mapping[o]:
-                print("return", c, o)
+                #print("return", c, o)
                 return c
 
     return 0
@@ -37,5 +37,5 @@ scores = {
 }
 
 lines = [line.replace("\n", "") for line in lines]
-print([find_errors(line) for line in lines])
+#print([find_errors(line) for line in lines])
 print(sum([scores[find_errors(line)] for line in lines]))

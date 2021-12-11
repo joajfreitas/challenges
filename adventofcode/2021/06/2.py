@@ -8,7 +8,6 @@ fishes = [int (x) for x in lines[0].split(",")]
 fishes = [fishes.count(i) for i in range(9)]
 
 for i in range(days):
-    print("day", i, sum(fishes))
     n = fishes.pop(0)
     fishes[6] += n
     fishes.append(n)

@@ -11,8 +11,6 @@ for line in lines:
     for c in line:
         map[-1].append(int(c))
 
-pprint(map)
-
 def neighbors(x,y):
     idx = [0, 1,-1]
     ns = []
@@ -58,7 +56,5 @@ s = 0
 for t in range(int(sys.argv[2])):
     map, count = simulate(map)
     s+=count
-    #print("time=", t)
-    #pprint(map)
 
 print(s)

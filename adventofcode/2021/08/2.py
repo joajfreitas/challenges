@@ -42,10 +42,6 @@ def solve(input, output):
 
     decoding = {v:k for k,v in encoding.items()}
 
-    print(mapping)
-    print(encoding)
-    print(decoding)
-
     return sum([decoding[word] * 10**i for i,word in enumerate(reversed(output))])
 
 with open(sys.argv[1]) as f:

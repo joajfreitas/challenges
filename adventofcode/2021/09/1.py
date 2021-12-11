@@ -6,7 +6,7 @@ with open(sys.argv[1]) as f:
 map.append([9 for i in range(len(map[0]))])
 map.insert(0, [9 for i in range(len(map[0]))])
 
-print(map)
+#print(map)
 
 def low_point(map):
     for y in range(1, len(map)-1):

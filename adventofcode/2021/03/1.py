@@ -15,13 +15,13 @@ for line in lines:
 gamma = 0
 epsilon = 0
 for k,v in results.items():
-    print(k,v)
+    #print(k,v)
     if v > len(lines)/2:
         gamma |= 1 << k
     else:
         epsilon |= 1 << k
 
-print(bin(gamma))
-print(bin(epsilon))
+#print(bin(gamma))
+#print(bin(epsilon))
 print(gamma, epsilon, gamma*epsilon)
 

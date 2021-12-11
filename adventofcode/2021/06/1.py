@@ -7,7 +7,7 @@ days = int(sys.argv[2])
 fishes = [int (x) for x in lines[0].split(",")]
 
 for i in range(days):
-    print("day", i, len(fishes))
+    #print("day", i, len(fishes))
     new_fish = []
     for i in range(len(fishes)):
         if fishes[i] == 0:
