@@ -46,8 +46,6 @@ graph = {}
 for line in lines:
     parse_edge(graph, line)
 
-print(graph)
 
 paths = search(graph)
-pprint(paths)
 print(len(paths))
