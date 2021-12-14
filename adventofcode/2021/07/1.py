@@ -10,7 +10,8 @@ def cost(line, pos):
     return sum([abs(pos-x) for x in line])
 
 def search(line):
-    costs = [(i, cost(line, pos)) for i,pos in enumerate(range(min(line), max(line)))]
-    print(min(costs, key=lambda x: x[1]))
+    line = sorted(line)
+    x = line[len(line)//2]
+    print(x, cost(line, x))
 
 search(line)
