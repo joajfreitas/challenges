@@ -6,6 +6,8 @@ This year we are using python.
 
 ## benchmark
 
+[![CI](https://github.com/joajfreitas/challenges/actions/workflows/main.yml/badge.svg)](https://github.com/joajfreitas/challenges/actions/workflows/main.yml)
+
 This year's goal: stay below 1s of total runtime.
 
 Run the benchmark.py script to gather simple statistics of the runtime of each

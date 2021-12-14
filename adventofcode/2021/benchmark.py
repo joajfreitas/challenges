@@ -29,7 +29,7 @@ def benchmark(day,part, args,runs):
         output = r.stdout.decode("utf-8").replace("\n", "")
         end = time.perf_counter()
         mean += end-start
-    
+
     return mean/runs, output
 
 runs = int(sys.argv[1] or 10)
@@ -53,12 +53,8 @@ total1 = sum(times1)
 total2 = sum(times2)
 total1 = round(1000*total1, 2)
 total2 = round(1000*total2, 2)
-print("=====================================")
-print(f"total run time for part1: {total1}ms")
-print(f"total run time for part2: {total2}ms")
-print(f"total run time: {round(total1 + total2,2)}ms")
 
-print("")
+print("=====================================")
 
 print(f"Fastest for part1: {times1.index(min(times1))+1}:{round(1000*min(times1),2)}ms")
 print(f"Fastest for part2: {times2.index(min(times2))+1}:{round(1000*min(times2),2)}ms")
@@ -69,3 +65,16 @@ print("")
 print(f"Slowest for part1: {times1.index(max(times1))+1}:{round(1000*max(times1),2)}ms")
 print(f"Slowest for part2: {times2.index(max(times2))+1}:{round(1000*max(times2),2)}ms")
 print(f"Slowest day: {joined_times.index(max(joined_times))+1}:{round(1000*max(joined_times),2)}ms")
+
+print("")
+
+print(f"total run time for part1: {total1}ms")
+print(f"total run time for part2: {total2}ms")
+print(f"total run time: {round(total1 + total2,2)}ms")
+
+max = int(sys.argv[2])
+if total1 + total2 > max:
+    print(f"Allowed runtime exceeded max was: {max}ms, got: {round(total1+total2,2)}ms.\nYou are {round(total1+total2-max,2)}ms above the target")
+    sys.exit(1)
+else:
+    sys.exit(0)
