@@ -78,6 +78,7 @@ with open(sys.argv[1]) as f:
     lines = f.readlines()
 
 map = [[int(c) for c in line.strip()] for line in lines]
+map = enhance(map)
 goal = (len(map)-1, len(map[0])-1)
 D = search(map, (0,0), goal)
 print(path(map, D, goal))
