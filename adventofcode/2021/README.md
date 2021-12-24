@@ -11,9 +11,8 @@ This year we are using python.
 This year's goal: stay below 1s of total runtime.
 
 Run the benchmark.py script to gather simple statistics of the runtime of each
-solution. The first argument is the number of iterations of each solution to
-run, a bigger number should output a more representative value but it will take
-longer.
+solution. The first argument is the number of iterations to run for each
+solution, the result is taken from the average of those runs.
 
 `python benchmark.py <iterations>`
 

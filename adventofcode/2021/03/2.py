@@ -29,7 +29,6 @@ def least_common(lines, offset):
 def filter_diag(lines, offset, bit):
     return [line for line in lines if int(line[offset]) == bit]
 
-
 o2 = lines
 idx = 0
 while True:
