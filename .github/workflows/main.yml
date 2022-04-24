@@ -29,4 +29,4 @@ jobs:
       - name: Run a one-line script
         working-directory: ./adventofcode/2021
         run: |
-          python benchmark.py 10 1000
+          python benchmark.py 10 10000
