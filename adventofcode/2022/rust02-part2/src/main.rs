@@ -1,47 +1,74 @@
-use std::fs;
 use std::env;
+use std::fs;
 
 fn read_aoc_input(filename: &String) -> String {
-    return fs::read_to_string(filename).unwrap()
+    return fs::read_to_string(filename).unwrap();
 }
 
-fn convert(s: &str) -> Option<i8> {
-    if s == "A" || s == "X" {
-        return Some(0);
-    }
-    else if s == "B" || s == "Y" {
-        return Some(1);
-    }
-    else if s == "C" || s == "Z" {
-        return Some(2);
+fn convert(s: &str) -> i8 {
+    if s == "A" {
+        return 0;
+    } else if s == "B" {
+        return 1;
+    } else if s == "C" {
+        return 2;
     }
 
-    None
+    panic!();
 }
 
-fn round(a: i8, b: i8) -> i8 {
-    static play_matrix: [i8; 9] = [0,-1,1,1,0,-1,-1,1,0];
-    
-    play_matrix[(3*a+b) as usize]
+fn convert_result(s: &str) -> i8 {
+    if s == "X" {
+        return -1;
+    } else if s == "Y" {
+        return 0;
+    } else if s == "Z" {
+        return 1;
+    }
+
+    panic!();
 }
 
-fn score(play: i8, result: i8) -> i8 {
-    play + 1 + 3 * (result + 1)
+fn round(result: i8, theirs: i8) -> (i8, i8) {
+    static play_matrix: [i8; 9] = [0, -1, 1, 1, 0, -1, -1, 1, 0];
+
+    let mut index = 0;
+    for (i, r) in play_matrix
+        .iter()
+        .skip(3 * theirs as usize)
+        .take(3)
+        .enumerate()
+    {
+        if -*r == result {
+            index = i;
+        }
+    }
+
+    (index as i8, result)
+}
+
+fn score(play: (i8, i8)) -> i8 {
+    play.0 + 1 + 3 * (play.1 + 1)
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let input = read_aoc_input(args.get(1).unwrap());
-    let mut acc: i32 = 0;
-    for line in input.lines() {
-        let sp = line.split(" ").collect::<Vec<&str>>();
 
-        let theirs = convert(sp[0].clone()).unwrap();
-        let mine = convert(sp[1].clone()).unwrap();
+    let result: i32 = input
+        .lines()
+        .collect::<Vec<&str>>()
+        .iter()
+        .map(|line| {
+            let sp = line.split(" ").collect::<Vec<&str>>();
 
-        acc += score(mine, round(mine, theirs)) as i32;
-    }
+            let theirs = convert(sp[0].clone());
+            let result = convert_result(sp[1].clone());
 
-    println!("{}", acc);
+            score(round(result, theirs)) as i32
+        })
+        .sum();
+
+    println!("{}", result);
 }
