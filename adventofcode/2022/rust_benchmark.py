@@ -5,6 +5,7 @@ from functools import reduce
 
 days = {
         "01": ([], []), 
+        "02": ([], []), 
 }
 
 def build(day, part):
