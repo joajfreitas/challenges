@@ -6,6 +6,8 @@ from functools import reduce
 days = {
         "01": ([], []), 
         "02": ([], []), 
+        "03": ([], []), 
+        "04": ([], []), 
 }
 
 def build(day, part):
@@ -16,7 +18,10 @@ def benchmark(day,part, args,runs):
 
     for i in range(runs):
         start = time.perf_counter()
-        r = subprocess.run([f'rust{day}-part{part}/target/release/rust{day}-part{part}', f'{day}/input'] + args1, capture_output=True)
+        r = subprocess.run([f'rust{day}-part{part}/target/release/rust{day}-part{part}', f'rust{day}-part{part}/input'] + args1, capture_output=True)
+        if r.returncode != 0:
+            print("failed")
+            sys.exit(1)
         output = r.stdout.decode("utf-8").replace("\n", "")
         end = time.perf_counter()
         mean += end-start
