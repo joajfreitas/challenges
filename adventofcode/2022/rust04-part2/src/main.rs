@@ -1,4 +1,3 @@
-use rayon::prelude::*;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -8,14 +7,9 @@ fn read_aoc_input(filename: &String) -> String {
 }
 
 fn check_intersection(first: &Vec<u32>, second: &Vec<u32>) -> bool {
-    let first = (first[0]..first[1] + 1)
-        .into_iter()
-        .collect::<HashSet<u32>>();
-    let second = (second[0]..second[1] + 1)
-        .into_iter()
-        .collect::<HashSet<u32>>();
-    let intersection = first.intersection(&second).collect::<HashSet<&u32>>();
-    intersection.len() > 0
+    (first[0] <= second[0] && first[1] >= second[1])
+        || (first[0] <= second[0] && first[1] >= second[0])
+        || (first[0] <= second[1] && first[1] >= second[1])
 }
 
 fn main() {
@@ -25,8 +19,6 @@ fn main() {
 
     let acc: u32 = input
         .lines()
-        .collect::<Vec<&str>>()
-        .par_iter()
         .map(|line| {
             let pairs = line.split(',').collect::<Vec<&str>>();
             let first_pair = pairs[0]
@@ -38,7 +30,9 @@ fn main() {
                 .map(|x| x.parse::<u32>().unwrap())
                 .collect::<Vec<u32>>();
 
-            if check_intersection(&first_pair, &second_pair) {
+            if check_intersection(&first_pair, &second_pair)
+                || check_intersection(&second_pair, &first_pair)
+            {
                 1
             } else {
                 0
