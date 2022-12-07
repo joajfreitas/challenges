@@ -18,9 +18,9 @@ fn convert(s: &str) -> Option<i8> {
 }
 
 fn round(a: i8, b: i8) -> i8 {
-    static play_matrix: [i8; 9] = [0, -1, 1, 1, 0, -1, -1, 1, 0];
+    static PLAY_MATRIX: [i8; 9] = [0, -1, 1, 1, 0, -1, -1, 1, 0];
 
-    play_matrix[(3 * a + b) as usize]
+    PLAY_MATRIX[(3 * a + b) as usize]
 }
 
 fn score(play: i8, result: i8) -> i8 {

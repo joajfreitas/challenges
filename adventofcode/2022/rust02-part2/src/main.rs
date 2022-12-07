@@ -30,10 +30,10 @@ fn convert_result(s: &str) -> i8 {
 }
 
 fn round(result: i8, theirs: i8) -> (i8, i8) {
-    static play_matrix: [i8; 9] = [0, -1, 1, 1, 0, -1, -1, 1, 0];
+    static PLAY_MATRIX: [i8; 9] = [0, -1, 1, 1, 0, -1, -1, 1, 0];
 
     let mut index = 0;
-    for (i, r) in play_matrix
+    for (i, r) in PLAY_MATRIX
         .iter()
         .skip(3 * theirs as usize)
         .take(3)
