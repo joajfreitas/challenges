@@ -1,5 +1,5 @@
 use itertools::multizip;
-use std::collections::HashSet;
+use rayon::prelude::*;
 use std::env;
 use std::fs;
 
@@ -15,6 +15,34 @@ fn convert_priority(item: &char) -> u32 {
     }
 }
 
+fn convert_char_to_index(c: char) -> usize {
+    let c = c as u8;
+    if c >= 'A' as u8 && c <= 'Z' as u8 {
+        (c - ('A' as u8) + 27) as usize
+    } else if c >= 'a' as u8 && c <= 'z' as u8 {
+        (c - ('a' as u8)) as usize
+    } else {
+        panic!();
+    }
+}
+
+fn convert_mask_to_char(mask: u64) -> char {
+    let mut i = 0;
+    loop {
+        if (mask >> i) == 1 {
+            break;
+        }
+        i += 1
+    }
+    if i < 27 {
+        (i + ('a' as u8)) as char
+    } else if i < 54 {
+        (i - 27 + ('A' as u8)) as char
+    } else {
+        panic!();
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -27,15 +55,28 @@ fn main() {
             input.lines().skip(1).step_by(3),
             input.lines().skip(2).step_by(3)
         ))
+        //.collect::<Vec<(&str, &str, &str)>>()
+        //.par_iter()
         .map(|(line1, line2, line3)| {
-            let first_set = line1.chars().collect::<HashSet<char>>();
-            let second_set = line2.chars().collect::<HashSet<char>>();
-            let third_set = line3.chars().collect::<HashSet<char>>();
+            let mut first_set: u64 = 0;
+            let mut second_set: u64 = 0;
+            let mut third_set: u64 = 0;
 
-            let inter1: HashSet<char> = first_set.intersection(&second_set).map(|x| *x).collect();
-            let item = inter1.intersection(&third_set).into_iter().next().unwrap();
+            for c in line1.chars() {
+                first_set |= (1 as u64) << convert_char_to_index(c);
+            }
 
-            convert_priority(item)
+            for c in line2.chars() {
+                second_set |= (1 as u64) << convert_char_to_index(c);
+            }
+
+            for c in line3.chars() {
+                third_set |= (1 as u64) << convert_char_to_index(c);
+            }
+
+            // set intersection
+            let intersection: u64 = first_set & second_set & third_set;
+            convert_priority(&convert_mask_to_char(intersection))
         })
         .sum::<u32>()
     );
