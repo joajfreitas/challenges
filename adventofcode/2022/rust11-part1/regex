@@ -1,0 +1,3 @@
+Monkey (\d):\s+Starting items:(\s\d\d,)+\s+Operation: new = old (\*) (\d|old)\s+Test: divisible by (\d{1,3})\s+If true: throw to monkey (\d)\s+If false: throw to monkey (\d)
+
+Monkey (\d):\s+Starting items:(\s(\d{1,3}),)+\s(\d{1,3})\s+Operation: new = old ([\*\+]) (\d{1,3}|old)\s+Test: divisible by (\d{1,3})\s+If true: throw to monkey (\d)\s+If false: throw to monkey (\d)
