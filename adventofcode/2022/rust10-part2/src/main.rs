@@ -44,7 +44,7 @@ fn main() {
     let mut screen: Vec<Vec<bool>> = Vec::new();
     for i in 0..6 {
         screen.push(Vec::new());
-        for j in 0..40 {
+        for _ in 0..40 {
             screen[i].push(false);
         }
     }

@@ -20,7 +20,6 @@ enum Operand {
 
 #[derive(Debug, Clone)]
 struct Monkey {
-    id: i64,
     items: Vec<i64>,
     operation: Operation,
     operand: Operand,
@@ -32,7 +31,6 @@ struct Monkey {
 
 impl Monkey {
     fn new(
-        id: i64,
         items: Vec<i64>,
         operation: Operation,
         operand: Operand,
@@ -41,7 +39,6 @@ impl Monkey {
         f: i64,
     ) -> Monkey {
         Monkey {
-            id: id,
             items: items,
             operation: operation,
             operand: operand,
@@ -62,7 +59,6 @@ fn main() {
     let mut monkeys = re
         .captures_iter(&input)
         .map(|cap| {
-            let id = cap.name("monkey").unwrap().as_str().parse::<i64>().unwrap();
             let mut items = cap
                 .name("items")
                 .unwrap()
@@ -89,11 +85,11 @@ fn main() {
             let f = cap.name("false").unwrap().as_str().parse::<i64>().unwrap();
 
             items.reverse();
-            Monkey::new(id, items, operation, operand, test, t, f)
+            Monkey::new(items, operation, operand, test, t, f)
         })
         .collect::<Vec<Monkey>>();
 
-    for i in 0..20 {
+    for _ in 0..20 {
         for id in 0..monkeys.len() {
             let monkey = monkeys[id].clone();
             for item in monkey.items.iter().rev() {

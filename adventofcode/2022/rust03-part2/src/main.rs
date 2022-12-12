@@ -55,8 +55,8 @@ fn main() {
             input.lines().skip(1).step_by(3),
             input.lines().skip(2).step_by(3)
         ))
-        //.collect::<Vec<(&str, &str, &str)>>()
-        //.par_iter()
+        .collect::<Vec<(&str, &str, &str)>>()
+        .par_iter()
         .map(|(line1, line2, line3)| {
             let mut first_set: u64 = 0;
             let mut second_set: u64 = 0;
