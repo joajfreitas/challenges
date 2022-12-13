@@ -1,9 +1,9 @@
+use rayon::prelude::*;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
-use rayon::prelude::*;
 
 fn read_aoc_input(filename: &String) -> String {
     return fs::read_to_string(filename).unwrap();
@@ -19,22 +19,22 @@ fn next(map: &Vec<Vec<i32>>, pos: (i32, i32), bounds: (i32, i32)) -> Vec<(i32, i
     let up = (pos.0 + 1, pos.1);
 
     if (right.0 >= 0 && right.0 < bounds.0 && right.1 >= 0 && right.1 < bounds.1)
-        && (map[right.0 as usize][right.1 as usize] - height) <= 1
+        && -(map[right.0 as usize][right.1 as usize] - height) <= 1
     {
         ns.push(right);
     }
     if (left.0 >= 0 && left.0 < bounds.0 && left.1 >= 0 && left.1 < bounds.1)
-        && (map[left.0 as usize][left.1 as usize] - height) <= 1
+        && -(map[left.0 as usize][left.1 as usize] - height) <= 1
     {
         ns.push(left);
     }
     if (down.0 >= 0 && down.0 < bounds.0 && down.1 >= 0 && down.1 < bounds.1)
-        && (map[down.0 as usize][down.1 as usize] - height) <= 1
+        && -(map[down.0 as usize][down.1 as usize] - height) <= 1
     {
         ns.push(down);
     }
     if (up.0 >= 0 && up.0 < bounds.0 && up.1 >= 0 && up.1 < bounds.1)
-        && (map[up.0 as usize][up.1 as usize] - height) <= 1
+        && -(map[up.0 as usize][up.1 as usize] - height) <= 1
     {
         ns.push(up);
     }
@@ -42,7 +42,11 @@ fn next(map: &Vec<Vec<i32>>, pos: (i32, i32), bounds: (i32, i32)) -> Vec<(i32, i
     return ns;
 }
 
-fn dijkstra(map: &Vec<Vec<i32>>, start: (i32, i32), end: (i32, i32)) -> Option<i32> {
+fn dijkstra(
+    map: &Vec<Vec<i32>>,
+    start: (i32, i32),
+    end: (i32, i32),
+) -> Option<HashMap<(i32, i32), i32>> {
     let bounds = (map.len() as i32, map[0].len() as i32);
     let mut costs: HashMap<(i32, i32), i32> = HashMap::new();
 
@@ -68,7 +72,7 @@ fn dijkstra(map: &Vec<Vec<i32>>, start: (i32, i32), end: (i32, i32)) -> Option<i
         let node = node.unwrap();
 
         if (node.x, node.y) == end {
-            return Some(node.cost);
+            return Some(costs);
         }
 
         if node.cost > costs[&(node.x, node.y)] {
@@ -118,12 +122,14 @@ fn main() {
 
     let mut map: Vec<Vec<i32>> = Vec::new();
 
+    let mut start: (i32, i32) = (0, 0);
     let mut end: (i32, i32) = (0, 0);
 
     for (i, line) in input.lines().enumerate() {
         map.push(Vec::new());
         for (j, char) in line.chars().enumerate() {
             if char == 'S' {
+                start = (i as i32, j as i32);
                 map[i].push(0);
             } else if char == 'E' {
                 end = (i as i32, j as i32);
@@ -143,11 +149,17 @@ fn main() {
         }
     }
 
+    let costs = dijkstra(&map, end, start).unwrap();
     println!(
         "{}",
-        starts
+        (0..map.len())
+            .map(|row| (0..map[row].len()).map(move |col| (row, col)))
+            .flatten()
+            .filter(|(row, col)| map[*row][*col] == 0)
+            .collect::<Vec<(usize, usize)>>()
             .par_iter()
-            .map(|start| { dijkstra(&map, *start, end).unwrap_or(1000000)})
-            .min().unwrap()
+            .map(|start| costs[&(start.0 as i32, start.1 as i32)])
+            .min()
+            .unwrap()
     );
 }
