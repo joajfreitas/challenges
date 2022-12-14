@@ -6,29 +6,36 @@ fn read_aoc_input(filename: &String) -> String {
     return fs::read_to_string(filename).unwrap();
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 enum Node {
     List(Vec<Node>),
     Int(i32),
 }
 
-fn cmp(this: &Node, other: &Node) -> Ordering {
-    match (this, other) {
-        (Node::List(l1), Node::List(l2)) => {
-            for (e1, e2) in l1.iter().zip(l2) {
-                let r = cmp(e1, e2);
-                if r.is_eq() {
-                    continue;
-                } else {
-                    return r;
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            (Node::List(l1), Node::List(l2)) => {
+                for (e1, e2) in l1.iter().zip(l2) {
+                    let r = e1.cmp(e2);
+                    if r.is_eq() {
+                        continue;
+                    } else {
+                        return r;
+                    }
                 }
-            }
 
-            l1.len().cmp(&l2.len())
+                l1.len().cmp(&l2.len())
+            }
+            (Node::Int(i1), Node::Int(i2)) => i1.cmp(i2),
+            (Node::List(_), Node::Int(_)) => self.cmp(&Node::List(vec![other.clone()])),
+            (Node::Int(_), Node::List(_)) => Node::List(vec![self.clone()]).cmp(other),
         }
-        (Node::Int(i1), Node::Int(i2)) => i1.cmp(i2),
-        (Node::List(l1), Node::Int(i2)) => cmp(this, &Node::List(vec![other.clone()])),
-        (Node::Int(i1), Node::List(l2)) => cmp(&Node::List(vec![this.clone()]), other),
+    }
+}
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -122,9 +129,9 @@ fn main() {
                 tokens.reverse();
                 let second = Node::parse(&mut tokens);
 
-                (i + 1, cmp(&first, &second))
+                (i + 1, first < second)
             })
-            .filter(|x| x.1 == Ordering::Less)
+            .filter(|x| x.1 == true)
             .map(|x| x.0)
             .sum::<usize>()
     );
