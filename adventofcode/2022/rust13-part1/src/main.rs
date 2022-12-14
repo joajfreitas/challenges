@@ -121,7 +121,7 @@ fn main() {
             .map(|(i, pair)| {
                 let lines = pair.split("\n").collect::<Vec<&str>>();
 
-                let mut tokens = tokenize(lines[0]);
+                let mut tokens = dbg!(tokenize(lines[0]));
                 tokens.reverse();
                 let first = Node::parse(&mut tokens);
 
