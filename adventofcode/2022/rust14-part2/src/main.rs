@@ -88,32 +88,39 @@ impl Sim {
     }
 
 
-    fn sim(&mut self){
-        if self.state == SimState::Settled {
-            self.map.insert((0, 500), Space::Sand);
-            self.last = (0,500);
-            self.state = SimState::Running;
-            return;
-        }
-        else {
-            let next_pos = self.next();
-            if next_pos.is_none() {
-                self.state = SimState::Settled;
-                return
+    fn sim(&mut self) -> i32{
+        let mut count = 0;
+        loop {
+            if self.state == SimState::Settled {
+                self.map.insert((0, 500), Space::Sand);
+                self.last = (0,500);
+                self.state = SimState::Running;
+                count += 1;
             }
             else {
-                let next_pos = next_pos.unwrap();
-                self.map.insert(next_pos, Space::Sand);
-                self.map.insert(self.last, Space::Empty);
-                self.last = next_pos;
-                if self.out_of_bounds(next_pos) {
-                    self.state = SimState::Done;
+                let next_pos = self.next();
+                if next_pos.is_none() {
+                    if self.last == (0,500) {
+                        self.state = SimState::Done;
+                        return count;
+                    }
+                    self.state = SimState::Settled;
+                    continue;
+                }
+                else {
+                    let next_pos = next_pos.unwrap();
+                    if next_pos == (0,500) {
+                        self.state = SimState::Done;
+                        continue;
+                    }
+                    self.map.insert(next_pos, Space::Sand);
+                    self.map.insert(self.last, Space::Empty);
+                    self.last = next_pos;
                 }
             }
         }
 
     }
-
 
     fn display(&self) {
         for i in self.bounds.0.0..self.bounds.0.1+1 {
@@ -149,13 +156,21 @@ fn main() {
             .flatten()
             .collect::<Vec<Line>>();
 
-    let leftmost = lines.iter().map(|line| cmp::min(line.x1, line.x2)).min().unwrap();
-    let rightmost = lines.iter().map(|line| cmp::max(line.x1, line.x2)).max().unwrap();
     let topmost = 0;
-    let bottommost = lines.iter().map(|line| cmp::max(line.y1, line.y2)).max().unwrap();
-    
-    println!("{} {} {} {}", leftmost, rightmost, topmost, bottommost);
+    let bottommost = lines.iter().map(|line| cmp::max(line.y1, line.y2)).max().unwrap() + 2;
 
+    let mut leftmost = lines.iter().map(|line| cmp::min(line.x1, line.x2)).min().unwrap();
+    let mut rightmost = lines.iter().map(|line| cmp::max(line.x1, line.x2)).max().unwrap();
+    let height = bottommost - topmost;
+    //leftmost -= height - (500-leftmost);
+    leftmost = 500 - height;
+    //rightmost += height - (rightmost-500);
+    rightmost = 500 + height;
+
+
+
+    
+    //let mut map: HashMap<(i32, i32), Space> = HashMap::new();
     let mut map: HashMap<(i32, i32), Space> = HashMap::new();
     
     
@@ -172,22 +187,11 @@ fn main() {
             }
         }
     }
+
+    for col in leftmost..rightmost + 1 {
+        map.insert((bottommost, col), Space::Wall);
+    }
     
     let mut sim = Sim::new(map, ((topmost, bottommost), (leftmost, rightmost)));
-    //println!("{:?}", map.keys());
-    //
-    //
-    let mut acc = 0;
-    loop {
-        sim.sim();
-        if sim.state == SimState::Settled{
-            acc += 1;
-        }
-        if sim.state == SimState::Done {
-            break;
-        }
-
-    }
-
-    println!("{}", acc);
+    println!("{}", sim.sim());
 }
