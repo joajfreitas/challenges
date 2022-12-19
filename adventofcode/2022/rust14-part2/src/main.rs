@@ -3,6 +3,7 @@ use std::fs;
 use std::cmp;
 use std::fmt;
 use std::collections::HashMap;
+use std::{thread,time};
 
 fn read_aoc_input(filename: &String) -> String {
     return fs::read_to_string(filename).unwrap();
@@ -171,27 +172,27 @@ fn main() {
 
     
     //let mut map: HashMap<(i32, i32), Space> = HashMap::new();
-    let mut map: HashMap<(i32, i32), Space> = HashMap::new();
+    let mut map: Vec<Vec<Space>> = Vec::new();
     
     
-    for col in leftmost..rightmost+1 {
-        for row in topmost..bottommost + 1 {
-            map.insert((row, col), Space::Empty);
-        }
+    for _ in topmost..bottommost + 1 {
+        map.push((leftmost..rightmost+1).map(|x| Space::Empty).collect::<Vec<Space>>());
     }
 
-    for line in lines {
-        for i in (cmp::min(line.x1,line.x2))..(cmp::max(line.x1, line.x2)+1) {
-            for j in (cmp::min(line.y1,line.y2))..(cmp::max(line.y1, line.y2)+1) {
-                map.insert((j,i), Space::Wall);
-            }
-        }
-    }
+    //println!("{:?}", map);
 
-    for col in leftmost..rightmost + 1 {
-        map.insert((bottommost, col), Space::Wall);
-    }
-    
-    let mut sim = Sim::new(map, ((topmost, bottommost), (leftmost, rightmost)));
-    println!("{}", sim.sim());
+    //for line in lines {
+    //    for i in (cmp::min(line.x1,line.x2))..(cmp::max(line.x1, line.x2)+1) {
+    //        for j in (cmp::min(line.y1,line.y2))..(cmp::max(line.y1, line.y2)+1) {
+    //            map.insert((j,i), Space::Wall);
+    //        }
+    //    }
+    //}
+
+    //for col in leftmost..rightmost + 1 {
+    //    map.insert((bottommost, col), Space::Wall);
+    //}
+    //
+    //let mut sim = Sim::new(map, ((topmost, bottommost), (leftmost, rightmost)));
+    //println!("{}", sim.sim());
 }
