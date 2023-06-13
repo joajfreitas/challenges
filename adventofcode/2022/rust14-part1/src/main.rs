@@ -113,16 +113,6 @@ impl Sim {
         }
 
     }
-
-
-    fn display(&self) {
-        for i in self.bounds.0.0..self.bounds.0.1+1 {
-            for j in self.bounds.1.0..self.bounds.1.1+1 {
-                print!("{}", self.map[&(i,j)]);
-            }
-            print!("\n");
-        }
-    }
 }
 
 fn main() {

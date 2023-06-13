@@ -24,6 +24,7 @@ days = {
 }
 
 def build(day, part):
+    print(day)
     r = subprocess.run(['cargo', 'build', '--release'], cwd=f'rust{day}-part{part}')
 
 def benchmark(day,part, args,runs):
