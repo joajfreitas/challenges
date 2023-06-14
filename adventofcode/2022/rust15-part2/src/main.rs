@@ -1,5 +1,4 @@
 use regex;
-use std::collections::HashSet;
 use std::env;
 use std::fs;
 
@@ -7,37 +6,50 @@ fn read_aoc_input(filename: &String) -> String {
     return fs::read_to_string(filename).unwrap();
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-enum State {
-    Empty,
-    Occupied,
+struct Diamond {
+    sensor: (i32, i32),
+    dist: i32,
 }
 
-fn display(map: &Vec<Vec<State>>, origin: (i32, i32)) {
-    print!("   ");
-    for (j,_) in map[0].iter().enumerate() {
-        print!("{}", (j as i32+origin.1 ).abs()/10);
-    }
-    print!("\n");
-    print!("   ");
-    for (j,_) in map[0].iter().enumerate() {
-        print!("{}", (j as i32+origin.1 ).abs()%10);
-    }
-    print!("\n");
-    for (i,row) in map.iter().enumerate() {
-        print!("{:2} ", i as i32 + origin.0);
-        for col in row {
-            print!(
-                "{}",
-                match col {
-                    State::Empty => ".",
-                    State::Occupied => "#",
-                }
-            );
+impl Diamond {
+    fn new(sensor: (i32, i32), beacon: (i32, i32)) -> Diamond {
+        Diamond {
+            sensor,
+            dist: (sensor.0 - beacon.0).abs() + (sensor.1 - beacon.1).abs()
         }
-        print!("\n");
+    }
+    
+    fn contains_unseen_points(&self, quadrant: ((i32, i32), (i32, i32))) -> bool {
+        let corners = vec![
+            (quadrant.0.0, quadrant.0.1),
+            (quadrant.1.0, quadrant.0.1),
+            (quadrant.0.0, quadrant.1.1),
+            (quadrant.1.0, quadrant.1.1),
+        ];
+
+        let max_dist = corners.iter().map(|corner| (corner.0 - self.sensor.0).abs() + (corner.1 - self.sensor.1).abs()).max().unwrap();
+
+        max_dist > self.dist
+    }
+
+    fn within_sensor_range(&self, other: (i32, i32)) -> bool {
+        let distance = (self.sensor.0 - other.0).abs() + (self.sensor.1 - other.1).abs();
+        distance <= self.dist
     }
 }
+
+fn compute_quadrants(square:((i32, i32), (i32, i32))) -> Vec<((i32, i32), (i32,i32))> {
+
+    let middle = ((square.1.0+square.0.0)/2,(square.0.1 + square.1.1)/2);
+    vec![
+        (square.0, middle),
+        ((middle.0+1,square.0.1), (square.1.0, middle.1)),
+        ((square.0.0, middle.1+1), (middle.0, square.1.1)),
+        ((middle.0, middle.1 + 1), square.1),
+    ]
+}
+
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -46,68 +58,37 @@ fn main() {
         r"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)",
     )
     .unwrap();
-    let lines = re
+    let diamonds = re
         .captures_iter(&input)
         .map(|capture| {
             let sensor_x = capture.get(1).unwrap().as_str().parse::<i32>().unwrap();
             let sensor_y = capture.get(2).unwrap().as_str().parse::<i32>().unwrap();
             let beacon_x = capture.get(3).unwrap().as_str().parse::<i32>().unwrap();
             let beacon_y = capture.get(4).unwrap().as_str().parse::<i32>().unwrap();
-            (
-                sensor_x,
-                sensor_y,
-                beacon_x,
-                beacon_y,
-                (sensor_x - beacon_x).abs() + (sensor_y - beacon_y).abs(),
+            Diamond::new(
+                (sensor_x, sensor_y),
+                (beacon_x, beacon_y),
             )
         })
-        .collect::<Vec<(i32, i32, i32, i32, i32)>>();
+        .collect::<Vec<Diamond>>();
     
-    // GARBAGE
-    //let left_limit = lines.iter().map(|x| x.0 - x.4).min().unwrap();
-    //let right_limit = lines.iter().map(|x| x.0 + x.4).max().unwrap();
-    //let top_limit = lines.iter().map(|x| x.1 - x.4).min().unwrap();
-    //let bottom_limit = lines.iter().map(|x| x.1 + x.4).max().unwrap();
-
-    //let size = (right_limit - left_limit, bottom_limit - top_limit);
-    //let origin = (left_limit, top_limit);
-
-    //let mut map: Vec<Vec<State>> = Vec::new();
-
-    //for _ in 0..(size.0 + 1) {
-    //    map.push(
-    //        (0..(size.1 + 1))
-    //            .map(|x| State::Empty)
-    //            .collect::<Vec<State>>(),
-    //    );
-    //}
-
-    //for line in lines {
-    //    for i in -line.4..line.4+1 {
-    //        for j in -line.4..line.4+1 {
-    //            if (dbg!(i).abs() + dbg!(j).abs()) <= line.4 {
-    //                dbg!(line.4);
-    //                dbg!((i+j).abs());
-    //                map[(i + line.0 - origin.0) as usize]
-    //                    [(j + line.1 - origin.1) as usize] = State::Occupied;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //display(&map, origin);
-    //println!(
-    //    "{:?}",
-    //    map.iter()
-    //        .enumerate()
-    //        .map(|(i, x)| x
-    //            .iter()
-    //            .enumerate()
-    //            .filter(|(j, y)| *j as i32 == 10 - origin.1)
-    //            .map(move |(j, y)| (i.clone(), j, y)))
-    //        .flatten()
-    //        .filter(|(x, y, state)| **state == State::Occupied)
-    //        .collect::<Vec<(usize, usize, &State)>>()
-    //        .len() -1
-    //);
+    let mut quadrant_stack = compute_quadrants(((0,0),(4000000,4000000)));
+    
+    while let Some(quadrant) = quadrant_stack.pop() {
+        if quadrant.0 == quadrant.1{
+            if diamonds.iter().all(|diamond| !diamond.within_sensor_range(quadrant.0)) {
+                println!("{}",4000000 * (quadrant.0.0 as i64) + (quadrant.0.1 as i64));
+                break;
+            }
+        }
+        for quadrant in compute_quadrants(quadrant) {
+            if quadrant.0.0 > quadrant.1.0 || quadrant.0.1 > quadrant.1.1 {
+                continue;
+            }
+            if diamonds.iter().all(|diamond| diamond.contains_unseen_points(quadrant)) {
+                quadrant_stack.push(quadrant);
+            }
+        }
+    }
 }
+
