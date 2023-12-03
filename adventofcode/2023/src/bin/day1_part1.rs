@@ -24,8 +24,8 @@ fn find_last_digit(chars: &Vec<char>) -> Option<char> {
 }
 
 fn find_digits(chars: &Vec<char>) -> u32 {
-
-    10*(find_first_digit(chars).unwrap().to_digit(10).unwrap() - '0'.to_digit(10).unwrap()) + (find_last_digit(chars).unwrap().to_digit(10).unwrap() -'0'.to_digit(10).unwrap())
+    10 * (find_first_digit(chars).unwrap().to_digit(10).unwrap() - '0'.to_digit(10).unwrap())
+        + (find_last_digit(chars).unwrap().to_digit(10).unwrap() - '0'.to_digit(10).unwrap())
 }
 
 fn main() {
@@ -37,7 +37,9 @@ fn main() {
         "{:?}",
         input
             .lines()
-            .map(|line| find_digits(&line.chars().collect::<Vec<char>>()
-            )).collect::<Vec<u32>>().iter().sum::<u32>()
+            .map(|line| find_digits(&line.chars().collect::<Vec<char>>()))
+            .collect::<Vec<u32>>()
+            .iter()
+            .sum::<u32>()
     );
 }

@@ -3,10 +3,12 @@ use std::env;
 
 use regex::Regex;
 
-fn find_digit(word: &str) -> u64{
+fn find_digit(word: &str) -> u64 {
     let word_re = Regex::new(r"[0-9]|(zero|one|two|three|four|five|six|seven|eight|nine)").unwrap();
-    
-    let captures = word_re.find_iter(word).map(|m| match m.as_str() {
+
+    let captures = word_re
+        .find_iter(word)
+        .map(|m| match m.as_str() {
             "0" | "zero" => 0,
             "1" | "one" => 1,
             "2" | "two" => 2,
@@ -18,11 +20,11 @@ fn find_digit(word: &str) -> u64{
             "8" | "eight" => 8,
             "9" | "nine" => 9,
             _ => panic!(),
-        }).collect::<Vec<u32>>();
-    
-    (10*captures.iter().next().unwrap() + captures.iter().rev().next().unwrap()).into()
-}
+        })
+        .collect::<Vec<u32>>();
 
+    (10 * captures.iter().next().unwrap() + captures.iter().rev().next().unwrap()).into()
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -33,6 +35,9 @@ fn main() {
         "{:?}",
         dbg!(input
             .lines()
-            .map(|line| find_digit(&line)).collect::<Vec<u64>>()).iter().sum::<u64>()
+            .map(|line| find_digit(&line))
+            .collect::<Vec<u64>>())
+        .iter()
+        .sum::<u64>()
     );
 }
