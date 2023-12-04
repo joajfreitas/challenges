@@ -36,26 +36,17 @@ fn parse_line(line: &str) -> (i32, Vec<[i32; 3]>) {
     (game_number, sets)
 }
 
-fn filter_sets(sets: Vec<[i32; 3]>) -> bool {
-    for set in sets {
-        if set[0] > 12 {
-            return false;
-        }
-        else if set[1] > 13 {
-            return false;
-        }
-        else if set[2] > 14 {
-            return false;
-        }
-    }
+fn max_cubes(line: Vec<[i32; 3]>) -> i32 {
+    let reds = line.iter().map(|x| x[0]).max().unwrap();
+    let greens = line.iter().map(|x| x[1]).max().unwrap();
+    let blues = line.iter().map(|x| x[2]).max().unwrap();
 
-    return true;
+    reds * greens * blues
 }
-
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let input = read_aoc_input(args.get(1).unwrap());
 
-    println!("{}", input.lines().map(parse_line).filter(|line| filter_sets(line.clone().1)).map(|line| line.0).sum::<i32>());
+    println!("{}", input.lines().map(parse_line).map(|line| max_cubes(line.1)).sum::<i32>());
 }
