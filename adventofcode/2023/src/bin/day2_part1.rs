@@ -17,16 +17,22 @@ fn parse_line(line: &str) -> (i32, Vec<[i32; 3]>) {
     let mut greens = 0;
 
     let game_number = caps.get(1).unwrap().as_str().parse::<i32>().unwrap();
-    for round in  caps.get(2).unwrap().as_str().split("; ").collect::<Vec<&str>>() {
+    for round in caps
+        .get(2)
+        .unwrap()
+        .as_str()
+        .split("; ")
+        .collect::<Vec<&str>>()
+    {
         for cube in round.split(", ").collect::<Vec<&str>>() {
             let components = cube.split(" ").collect::<Vec<&str>>();
             let ammount = components[0].parse::<i32>().unwrap();
             let cube = components[1];
-            
+
             match cube {
-                "red" => {reds = ammount},
-                "blue" => {blues = ammount},
-                "green" => {greens = ammount},
+                "red" => reds = ammount,
+                "blue" => blues = ammount,
+                "green" => greens = ammount,
                 _ => panic!(),
             };
         }
@@ -40,11 +46,9 @@ fn filter_sets(sets: Vec<[i32; 3]>) -> bool {
     for set in sets {
         if set[0] > 12 {
             return false;
-        }
-        else if set[1] > 13 {
+        } else if set[1] > 13 {
             return false;
-        }
-        else if set[2] > 14 {
+        } else if set[2] > 14 {
             return false;
         }
     }
@@ -57,5 +61,13 @@ fn main() {
 
     let input = read_aoc_input(args.get(1).unwrap());
 
-    println!("{}", input.lines().map(parse_line).filter(|line| filter_sets(line.clone().1)).map(|line| line.0).sum::<i32>());
+    println!(
+        "{}",
+        input
+            .lines()
+            .map(parse_line)
+            .filter(|line| filter_sets(line.clone().1))
+            .map(|line| line.0)
+            .sum::<i32>()
+    );
 }
