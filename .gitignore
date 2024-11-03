@@ -17,3 +17,6 @@ Cargo.lock
 **/*.rs.bk
 
 *.out
+
+# Any lock files
+**/*.lock
