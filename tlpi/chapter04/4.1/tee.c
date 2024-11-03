@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <tlpi.h>
+#include "lib/tlpi.h"
 
 #define BUF_SIZE 1024
 

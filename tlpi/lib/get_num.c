@@ -1,5 +1,5 @@
 #include "get_num.h"
-#include <tlpi.h>
+#include "tlpi.h"
 #include "limits.h"
 
 static inline Boolean valid_base(GN_BASE base){

@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include "error_functions.h"
-#include <tlpi.h>
+#include "tlpi.h"
 
 #ifdef __GUNC__
 __attribute__ ((__noreturn__))
