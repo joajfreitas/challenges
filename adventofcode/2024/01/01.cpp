@@ -2,8 +2,8 @@
 #include <array>
 #include <iostream>
 #include <numeric>
+#include <unordered_map>
 #include <vector>
-#include <map>
 
 int main()
 {
@@ -216,19 +216,10 @@ int main()
     std::sort(left.begin(), left.end());
     std::sort(right.begin(), right.end());
 
-    std::vector<int> diffs(left.size());
-    std::transform(
-        left.cbegin(),
-        left.cend(),
-        right.cbegin(),
-        diffs.begin(),
-        [](auto left, auto right) {
-            return std::abs(left - right);
-        });
+    std::unordered_map<int, int> freqs {};
+    freqs.reserve(left.size());
 
-    std::cout << std::accumulate(diffs.begin(), diffs.end(), 0) << std::endl;
-    
-    std::map<int, int> freqs{};
+    // compute frequencies beforehand
     std::for_each(right.begin(), right.end(), [&freqs](auto right) {
         if (freqs.find(right) == freqs.end()) {
             freqs[right] = 1;
@@ -236,17 +227,16 @@ int main()
             freqs[right]++;
         }
     });
+    
+    int diffs_count = 0;
+    int freqs_count = 0;
+    for (int i=0; i<left.size(); i++) {
+        diffs_count += std::abs(left[i] - right[i]);
+        freqs_count += left[i] * freqs[left[i]];
+    }
 
-    std::transform(
-        left.cbegin(),
-        left.cend(),
-        right.cbegin(),
-        diffs.begin(),
-        [&freqs](auto left, auto right) {
-            return left * freqs[right];
-        });
-
-    std::cout << std::accumulate(diffs.begin(), diffs.end(), 0) << std::endl;
+    std::cout << diffs_count << std::endl;
+    std::cout << freqs_count << std::endl;
 
     return 0;
 }
