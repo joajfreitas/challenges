@@ -5,8 +5,10 @@
 #include <optional>
 #include <set>
 #include <utility>
+#include <algorithm>
+#include <functional>
 
-std::pair<int, int> next_pos(int x, int y, int direction) {
+std::pair<int, int> next_pos(int y, int x, int direction) {
     if (direction == 0) {
         y -= 1;
     }
@@ -35,29 +37,82 @@ std::optional<char> get_position(const std::vector<std::vector<char>>& map, int 
     return map[y][x];
 }
 
-std::optional<std::pair<int, int>> beam_search(const std::vector<std::vector<char>>& map, const std::set<std::tuple<int,int,int>>& visited, int x, int y, int direction) {
+//std::optional<std::pair<int, int>> cycle_detection(std::vector<std::vector<char>> map, int y, int x, int direction) {
+//    std::set<std::tuple<int,int,int>> visited{};
+//
+//    auto next = next_pos(x,y, direction);
+//    if (!get_position(map, next.first, next.second).has_value()) {
+//        return std::nullopt;
+//    }
+//    map[next.first][next.second] = '#';
+//
+//    int obstacle_y = next.first;
+//    int obstacle_x = next.second;
+//
+//    while (true) {
+//        //std::cout << "y: " << y << ", x: " << x << ", direction: " << direction << std::endl;
+//        auto next = next_pos(x,y, direction);
+//        auto n = get_position(map, next.first, next.second);
+//        
+//        if (!n.has_value()) {
+//            break;
+//        }
+//        
+//
+//        auto v = n.value();
+//        if (v != '#') {
+//            x = next.second;
+//            y = next.first;
+//            auto search = std::make_tuple(y, x, direction);
+//            if (std::find(visited.begin(), visited.end(), search) != visited.end()) {
+//                return std::make_pair(obstacle_y, obstacle_x);
+//            }
+//        }
+//        else {
+//            direction = rotate(direction);
+//        }
+//        visited.insert(std::make_tuple(y, x, direction));
+//
+//    }
+//
+//    return std::nullopt;
+//}
 
-    std::cout << "search start: " << y << " " << x << " " << direction << std::endl;
-    //for (const auto& v : visited) {
-        //std::cout << "[" << std::get<0>(v) << " " << std::get<1>(v) << " " << std::get<2>(v) <<"], " << std::endl;
-    //}
-    int og_x = x;
-    int og_y = y;
+std::optional<std::vector<std::tuple<int, int, int>>> walk(const std::vector<std::vector<char>>& map, int y, int x, int direction) {
+    std::vector<std::tuple<int, int, int>> visited{};
     while (true) {
-        if (!get_position(map, y, x).has_value()) {
+        //std::cout << "y: " << y << ", x: " << x << ", direction: " << direction << std::endl;
+        auto f = std::find(visited.begin(), visited.end(), std::make_tuple(y, x, direction));
+        if (f != visited.end()) {
+            //std::cout << "cycle" << std::endl;
+            return std::nullopt;
+        }
+        visited.push_back(std::make_tuple(y, x, direction));
+
+        auto next = next_pos(y, x, direction);
+        auto n = get_position(map, next.first, next.second);
+
+        if (!n.has_value()) {
             break;
         }
-
-        if (visited.find(std::make_tuple(y,x,direction)) != visited.end()) {
-            return std::make_pair(og_y, og_x);
+        
+        auto v = n.value();
+        if (v != '#') {
+            x = next.second;
+            y = next.first;
         }
-        auto r = next_pos(x,y,direction);
-        y = r.first;
-        x = r.second;
+        else {
+            direction = rotate(direction);
+        }
 
     }
-    return std::nullopt;
+    
+    //std::cout << "no cycle" << std::endl;
+    return visited;
 }
+
+
+
 
 int main(int argc, char* argv[]) {
     std::ifstream infile(argv[1]);
@@ -70,54 +125,46 @@ int main(int argc, char* argv[]) {
     }
     
 
-    int y = 0;
-    int x = 0;
-    int direction = 0;
+    int start_y = 0;
+    int start_x = 0;
+    int start_direction = 0;
     for (int i=0; i<map.size(); i++) {
         for (int j=0; j<map[i].size(); j++) {
             if (map[i][j]== '^') {
-                y = i;
-                x = j;
+                start_y = i;
+                start_x = j;
             }
         }
     }
     
-    std::set<std::tuple<int, int, int>> visited{{y,x, 0}};
+    
+    auto visited = walk(map, start_y, start_x, start_direction);
+    std::vector<std::vector<char>> map_copy{};
+    std::set<std::pair<int, int>> obstacles{};
 
-    std::set<std::pair<int, int>> obstacles = {};
-    while (true) {
-        auto next = next_pos(x,y, direction);
-        auto n = get_position(map, next.first, next.second);
+    for (auto v : visited.value()) {
+        map_copy = map;
+        auto y = std::get<0>(v);
+        auto x = std::get<1>(v);
+        auto direction = std::get<2>(v);
         
-        if (!n.has_value()) {
-            break;
+        map_copy[y][x] = '#';
+    
+        //std::cout << "========================" << std::endl;
+        //for(auto m: map_copy) {
+        //    for (auto c: m) {
+        //        std::cout << c;
+        //    }
+        //    std::cout << std::endl;
+        //}
+        if (walk(map_copy, start_y, start_x, start_direction) == std::nullopt) {
+            obstacles.insert(std::make_pair(y,x));
         }
 
-        auto v = n.value();
-    
-        if (v != '#') {
-            auto r = beam_search(map, visited, x, y, rotate(direction));
-            if (r.has_value()){
-                //std::cout << "y: " << r.value().first << ", ";
-                //std::cout << "x: " << r.value().second << std::endl;
-                auto z = next_pos(r.value().second, r.value().first, direction);
-                std::cout << "y: " << z.first << ", ";
-                std::cout << "x: " << z.second << std::endl;
-                obstacles.insert(std::make_pair(z.first, z.second));
-            }
-            x = next.second;
-            y = next.first;
-            visited.insert(std::make_tuple(y, x, direction));
-        }
-        else {
-            visited.insert(std::make_tuple(y, x, direction));
-            direction = rotate(direction);
-        }
     }
 
-    std::cout << visited.size() << std::endl;
-    std::cout << "obstacles: " << obstacles.size() << std::endl;
-
+    std::cout << visited.value().size() << std::endl;
+    std::cout << obstacles.size() << std::endl;
 
     return 0;
 }
